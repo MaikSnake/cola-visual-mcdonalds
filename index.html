@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cola Visual de Condimentação • Linha de Montagem McDonald's</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Tela Inicial de Identificação de Usuário -->
+  <div id="user-select-screen" class="user-select-overlay" role="dialog" aria-modal="true" aria-labelledby="user-select-title">
+    <div class="user-select-container">
+      <div class="user-select-brand">
+        <div class="golden-arches user-select-arches" aria-hidden="true">M</div>
+        <h1 id="user-select-title" class="user-select-heading">QUEM ESTÁ OPERANDO A LINHA?</h1>
+        <p class="user-select-subtitle">Selecione seu usuário para acessar a Cola Visual de Condimentação</p>
+      </div>
+
+      <div id="user-profiles-grid" class="user-profiles-grid" role="list">
+        <!-- Renderizado dinamicamente via app.js (Maik / Gabriel / Lauana) -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Cabeçalho responsivo para Tablet / Totem / Celular / Monitor -->
+  <header class="top-bar">
+    <div class="top-bar-row">
+      <div class="brand-area">
+        <div class="golden-arches" aria-hidden="true">M</div>
+        <div class="brand-text">
+          <h1>COLA VISUAL DE CONDIMENTAÇÃO</h1>
+          <p>Toque em um hambúrguer para abrir a Placa Vertical de Montagem da Linha</p>
+        </div>
+      </div>
+
+      <!-- Direita do Topo: Ações + Identificação do Usuário Selecionado no Canto Superior Direito -->
+      <div class="top-bar-right-cluster">
+        <!-- Botões de Ação / Edição Rápida no Topo -->
+        <div class="admin-actions">
+          <button id="new-burger-btn" class="action-top-btn btn-create" type="button">
+            <span>＋</span> <span>Novo Hambúrguer</span>
+          </button>
+          <button id="manage-condiments-btn" class="action-top-btn btn-condiments" type="button">
+            <span>🧂</span> <span>Condimentos / Fotos</span>
+          </button>
+          <button id="export-data-btn" class="action-top-btn btn-export" type="button" title="Baixar arquivo data.js atualizado com suas edições">
+            <span>💾</span> <span>Baixar data.js</span>
+          </button>
+          <button id="reset-default-btn" class="action-top-btn btn-reset" type="button" title="Restaurar cardápio original de fábrica">
+            <span>🔄</span> <span>Restaurar Padrão</span>
+          </button>
+        </div>
+
+        <!-- Perfil do Usuário Selecionado (Canto Superior Direito) -->
+        <div id="active-user-widget" class="active-user-widget">
+          <button
+            id="switch-user-avatar-btn"
+            class="active-user-avatar-btn"
+            type="button"
+            title="Trocar de usuário"
+          >
+            <img id="active-user-avatar" src="images/users/maik-subaru.jpg" alt="Avatar do usuário" />
+          </button>
+
+          <!-- Exibição do Nome + Botões de Editar Nome e Trocar Usuário -->
+          <div id="active-user-display-box" class="active-user-info">
+            <span class="active-user-role-tag">OPERADOR(A)</span>
+            <div class="active-user-name-row">
+              <span id="active-user-name" class="active-user-name">Maik</span>
+              <button
+                id="edit-user-name-btn"
+                class="user-inline-action-btn"
+                type="button"
+                title="Alterar nome deste usuário"
+              >
+                ✏️
+              </button>
+              <button
+                id="switch-user-btn"
+                class="user-inline-action-btn switch-btn"
+                type="button"
+                title="Trocar de usuário"
+              >
+                Trocar
+              </button>
+            </div>
+          </div>
+
+          <!-- Campo Inline para Alterar o Nome do Usuário no Canto Superior Direito -->
+          <div id="active-user-edit-box" class="active-user-edit-box" hidden>
+            <input
+              type="text"
+              id="active-user-name-input"
+              class="active-user-name-input"
+              maxlength="28"
+              placeholder="Digite o nome..."
+              aria-label="Novo nome do usuário"
+            />
+            <button id="save-user-name-btn" class="user-name-save-btn" type="button" title="Salvar nome">
+              ✓
+            </button>
+            <button id="cancel-user-name-btn" class="user-name-cancel-btn" type="button" title="Cancelar">
+              ✕
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls-area">
+      <div class="filter-tabs" role="tablist" aria-label="Filtrar categoria de hambúrgueres">
+        <button class="filter-btn active" data-category="all" type="button">
+          <span>Todos</span> <span class="count-badge" id="count-all">0</span>
+        </button>
+        <button class="filter-btn" data-category="bovinos" type="button">
+          <span class="dot red-dot"></span> <span>Bovinos Clássicos</span>
+        </button>
+        <button class="filter-btn" data-category="tasty" type="button">
+          <span>🧀</span> <span>Linha Tasty</span>
+        </button>
+        <button class="filter-btn" data-category="crispy" type="button">
+          <span>🍗</span> <span>Linha Crispy</span>
+        </button>
+        <button class="filter-btn" data-category="aves-peixe" type="button">
+          <span class="dot green-dot"></span> <span>Frango &amp; Peixe</span>
+        </button>
+        <button class="filter-btn" data-category="brabos" type="button">
+          <span>⭐</span> <span>Brabos &amp; Especiais</span>
+        </button>
+        <button id="toggle-show-inactive-btn" class="filter-btnInactive-toggle" type="button" title="Mostrar ou ocultar hambúrgueres desativados">
+          <span id="inactive-toggle-icon">👁️</span>
+          <span id="inactive-toggle-label">Mostrar Desativados</span>
+          <span class="count-badge inactive-count-badge" id="count-inactive">0</span>
+        </button>
+      </div>
+
+      <div class="search-box">
+        <input
+          type="search"
+          id="search-input"
+          placeholder="Buscar lanche ou ingrediente..."
+          autocomplete="off"
+          aria-label="Buscar hambúrguer ou condimento"
+        />
+        <button id="clear-search" class="clear-search-btn" type="button" hidden aria-label="Limpar busca">✕</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Grade Principal de Hambúrgueres -->
+  <main class="main-container">
+    <div id="burger-grid" class="burger-grid" role="list" aria-label="Lista de hambúrgueres do cardápio"></div>
+
+    <div id="empty-state" class="empty-state" hidden>
+      <p>Nenhum hambúrguer encontrado para esta busca.</p>
+      <button id="reset-filters-btn" class="primary-touch-btn" type="button">Mostrar Todos os Hambúrgueres</button>
+    </div>
+  </main>
+
+  <!-- Modal / Placa Vertical de Montagem da Linha -->
+  <div
+    id="detail-modal"
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modal-burger-name"
+    hidden
+  >
+    <div id="modal-window-box" class="modal-window board-modal-window">
+      <!-- Cabeçalho da Placa Vertical (Modo Visualização) -->
+      <div id="modal-header-view" class="board-header">
+        <div class="board-header-top-bar">
+          <div class="board-Product-mini">
+            <img id="modal-burger-img" src="" alt="" class="board-mini-burger-img" />
+            <div class="board-badges-wrap">
+              <span id="modal-category-badge" class="meta-pill category-pill"></span>
+              <span id="modal-tong-badge" class="meta-pill tong-pill"></span>
+              <span id="modal-packaging-badge" class="meta-pill pack-pill"></span>
+            </div>
+          </div>
+
+          <div class="modal-header-actions">
+            <button id="toggle-burger-active-btn" class="toggle-active-modal-btn is-active" type="button" title="Ativar ou desativar este hambúrguer na linha">
+              <span id="toggle-active-modal-icon">🟢</span>
+              <span id="toggle-active-modal-text" class="btn-text-label">ATIVO</span>
+            </button>
+            <button id="toggle-edit-btn" class="edit-mode-btn" type="button">
+              <span>✏️</span> <span class="btn-text-label">EDITAR</span>
+            </button>
+            <button id="modal-close-top" class="close-modal-btn" type="button" aria-label="Fechar janela">
+              <span class="close-icon">✕</span>
+              <span class="close-label">FECHAR</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Título Estilo Placa Oficial da Linha McDonald's -->
+        <div class="board-title-banner">
+          <h2 id="modal-burger-name" class="board-placard-title">BIG MAC</h2>
+          <p id="modal-burger-bun" class="board-bun-subtitle"></p>
+        </div>
+      </div>
+
+      <!-- Cabeçalho Compacto do Modal (Modo Edição) -->
+      <div id="modal-header-edit" class="modal-header modal-header-editing" hidden>
+        <div class="edit-header-top">
+          <span class="editing-pill-indicator">✏️ EDITANDO PLACA DE MONTAGEM</span>
+          <div class="edit-header-buttons">
+            <button id="duplicate-burger-btn" class="secondary-edit-btn" type="button" title="Criar uma cópia deste hambúrguer">
+              📋 Duplicar
+            </button>
+            <button id="delete-burger-btn" class="danger-edit-btn" type="button" title="Excluir este hambúrguer do cardápio">
+              🗑️ Excluir
+            </button>
+            <button id="cancel-edit-btn" class="secondary-edit-btn" type="button">
+              Cancelar
+            </button>
+            <button id="save-edit-btn" class="save-edit-btn" type="button">
+              💾 SALVAR
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Corpo Rolável da Placa Vertical -->
+      <div id="modal-body-scroll" class="modal-body board-modal-body">
+        <!-- Painel de Dados Gerais do Hambúrguer (visível apenas no Modo Edição) -->
+        <div id="edit-burger-meta-panel" class="edit-burger-meta-panel" hidden>
+          <h3 class="edit-panel-title">Dados Gerais do Hambúrguer</h3>
+          <div class="edit-burger-meta-grid">
+            <!-- Foto do Hambúrguer -->
+            <div class="edit-photo-column">
+              <div class="edit-burger-thumb-preview">
+                <img id="edit-burger-img-preview" src="" alt="Preview" />
+              </div>
+              <div class="edit-photo-controls">
+                <label class="upload-file-label">
+                  📷 Enviar Foto
+                  <input type="file" id="edit-burger-file-input" accept="image/*" hidden />
+                </label>
+                <input
+                  type="text"
+                  id="edit-burger-image"
+                  class="edit-input edit-input-sm"
+                  placeholder="Caminho ou URL da imagem"
+                  title="Caminho ou URL da foto do hambúrguer"
+                />
+              </div>
+            </div>
+
+            <!-- Campos Gerais do Hambúrguer -->
+            <div class="edit-fields-grid">
+              <div class="edit-field">
+                <label for="edit-burger-name">Nome do Hambúrguer (Título da Placa)</label>
+                <input type="text" id="edit-burger-name" class="edit-input edit-input-lg" placeholder="Ex: BIG MAC" />
+              </div>
+
+              <div class="edit-field">
+                <label for="edit-burger-category">Categoria no Cardápio</label>
+                <select id="edit-burger-category" class="edit-select">
+                  <option value="bovinos">🔴 Clássico Bovino</option>
+                  <option value="tasty">🧀 Linha Tasty (Família Tasty)</option>
+                  <option value="crispy">🍗 Linha Crispy (McCrispy Chicken)</option>
+                  <option value="aves-peixe">🟢 Frango &amp; Peixe</option>
+                  <option value="brabos">⭐ Brabos &amp; Especiais</option>
+                </select>
+              </div>
+
+              <div class="edit-field">
+                <label for="edit-burger-tong">Cor do Pegador (Biossegurança)</label>
+                <select id="edit-burger-tong" class="edit-select">
+                  <option value="red">🔴 Vermelho (Carnes Bovinas)</option>
+                  <option value="green">🟢 Verde / Bege (Aves &amp; Peixe)</option>
+                </select>
+              </div>
+
+              <div class="edit-field">
+                <label for="edit-burger-tong-label">Texto do Pegador / Temperatura UHC</label>
+                <input type="text" id="edit-burger-tong-label" class="edit-input" placeholder="Ex: Pegador Vermelho • UHC 85°C" />
+              </div>
+
+              <div class="edit-field">
+                <label for="edit-burger-bun">Pão e Tostagem</label>
+                <input type="text" id="edit-burger-bun" class="edit-input" placeholder="Ex: Pão com Gergelim • Tostagem 22s" />
+              </div>
+
+              <div class="edit-field">
+                <label for="edit-burger-packaging">Embalagem / Fechamento</label>
+                <input type="text" id="edit-burger-packaging" class="edit-input" placeholder="Ex: Caixa Rígida ou Lâmina (Bombom)" />
+              </div>
+
+              <div class="edit-field">
+                <label for="edit-burger-active">Status na Linha de Montagem</label>
+                <select id="edit-burger-active" class="edit-select">
+                  <option value="true">🟢 Ativo (Visível na Linha)</option>
+                  <option value="false">⚪ Desativado (Oculto na Linha)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Container das Pilhas Verticais (Coluna Coroa / Clube à esquerda, Coluna Base à direita) -->
+        <div id="modal-body" class="board-columns-stage"></div>
+      </div>
+
+      <!-- Rodapé do Modal (Modo Visualização) -->
+      <div id="modal-footer-view" class="modal-footer board-footer">
+        <button id="prev-burger-btn" class="nav-burger-btn" type="button">
+          ◀ <span id="prev-burger-label">Anterior</span>
+        </button>
+
+        <button id="modal-close-bottom" class="back-grid-btn" type="button">
+          ✕ VOLTAR AO CARDÁPIO
+        </button>
+
+        <button id="next-burger-btn" class="nav-burger-btn" type="button">
+          <span id="next-burger-label">Próximo</span> ▶
+        </button>
+      </div>
+
+      <!-- Rodapé do Modal (Modo Edição) -->
+      <div id="modal-footer-edit" class="modal-footer modal-footer-editing" hidden>
+        <button id="add-section-btn" class="add-section-btn" type="button">
+          ＋ ADICIONAR COLUNA DE PÃO (Ex: Coroa / Clube / Base)
+        </button>
+        <div class="footer-edit-right">
+          <button id="cancel-edit-bottom-btn" class="secondary-edit-btn" type="button">
+            Cancelar
+          </button>
+          <button id="save-edit-bottom-btn" class="save-edit-btn" type="button">
+            💾 SALVAR ALTERAÇÕES
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Gerenciador de Condimentos / Ingredientes -->
+  <div
+    id="condiments-modal"
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="condiments-modal-title"
+    hidden
+  >
+    <div class="modal-window condiments-modal-window">
+      <div class="modal-header">
+        <div class="brand-text">
+          <h2 id="condiments-modal-title" class="cond-modal-heading">
+            🧂 GERENCIAR CONDIMENTOS E INSUMOS
+          </h2>
+          <p>Edite nomes, troque fotos ou cadastre novos condimentos para usar nos hambúrgueres</p>
+        </div>
+        <button id="close-condiments-modal-btn" class="close-modal-btn" type="button">
+          <span class="close-icon">✕</span>
+          <span class="close-label">FECHAR</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Formulário para Criar Novo Condimento -->
+        <div class="new-condiment-box">
+          <h3>＋ Cadastrar Novo Condimento / Ingrediente</h3>
+          <div class="new-condiment-form">
+            <input
+              type="text"
+              id="new-cond-name"
+              class="edit-input"
+              placeholder="Nome do condimento (ex: Cebola Roxa, Molho Barbecue...)"
+            />
+            <select id="new-cond-type" class="edit-select">
+              <option value="sauce">🫙 Molho</option>
+              <option value="veggie">🥬 Vegetal / Cebola / Picles</option>
+              <option value="cheese">🧀 Queijo</option>
+              <option value="meat">🥓 Bacon / Complemento</option>
+              <option value="beef">🔴 Carne Bovina (Pegador Vermelho)</option>
+              <option value="poultry">🟢 Frango Empanado (Pegador Verde)</option>
+              <option value="fish">🟢 Filé de Peixe (Pegador Bege/Verde)</option>
+              <option value="bun">🍞 Pão / Outros</option>
+            </select>
+            <input
+              type="text"
+              id="new-cond-image"
+              class="edit-input"
+              placeholder="URL da foto ou envie do dispositivo ➔"
+            />
+            <label class="upload-file-label">
+              📷 Foto do Aparelho
+              <input type="file" id="new-cond-file" accept="image/*" hidden />
+            </label>
+            <button id="create-condiment-btn" class="save-edit-btn" type="button">
+              ＋ Adicionar
+            </button>
+          </div>
+        </div>
+
+        <!-- Lista de Condimentos Existentes para Edição -->
+        <div id="condiments-manager-list" class="condiments-manager-grid"></div>
+      </div>
+
+      <div class="modal-footer">
+        <span class="cond-footer-note">
+          Todas as alterações em condimentos atualizam automaticamente os hambúrgueres que os utilizam.
+        </span>
+        <button id="done-condiments-btn" class="back-grid-btn" type="button">
+          ✓ CONCLUÍDO
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de Confirmação -->
+  <div id="toast-notification" class="toast-notification" hidden>
+    ✓ Alterações salvas!
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
